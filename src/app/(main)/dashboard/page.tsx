@@ -58,6 +58,7 @@ const SalesContent = [
 
 export const revalidate = 20;
 export default async function MainPage() {
+  // await new Promise(resolve => setTimeout(resolve, 3000))
   const user = await currentAgent();
   const allSales = await RetrieveAllSales(user?.id!);
   const allSubAccounts = await RetrieveAllSubAccounts(user?.id!);

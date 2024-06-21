@@ -1,7 +1,9 @@
 import ModalProvider from "@/components/provider/modal-provider";
 import Sidebar from "@/components/shared/sidebar";
 import TopNavDashboard from "@/components/shared/top-nav-dashboard";
-export default function Layout({ children }: { children: React.ReactNode }) {
+import { currentAgent } from "@/server-actions";
+export default async function Layout({ children }: { children: React.ReactNode }) {
+  await currentAgent();
   return (
     <ModalProvider>
       <div className="min-h-svh flex flex-grow flex-1">

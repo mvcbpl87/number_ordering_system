@@ -13,10 +13,10 @@ export async function middleware(request: NextRequest) {
   if (url.pathname === "/")
     return NextResponse.redirect(new URL(path.login, process.env.BASE_URL!));
 
-  if (url.pathname.startsWith("/dashboard")) {
-    if (!session)
-      return NextResponse.redirect(new URL(path.login, process.env.BASE_URL!));
-  }
+  // if (url.pathname.startsWith("/dashboard")) {
+  //   if (!session)
+  //     return NextResponse.redirect(new URL(path.login, process.env.BASE_URL!));
+  // }
 
   return await updateSession(request);
 }
