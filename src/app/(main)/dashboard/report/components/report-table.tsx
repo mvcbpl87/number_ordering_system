@@ -25,23 +25,31 @@ export default function ReportTable({ all_sales, category }: Props) {
   const TotalBig = all_sales
     .filter(
       (item) =>
-        item.ticket_numbers.gametype === "Big" &&
+        item.ticket_numbers &&
+        item.ticket_numbers!.gametype === "Big" &&
         item.ticket_numbers.category.includes(category!)
     )
     .reduce((sum, item) => {
-      const { number, amount } = item.ticket_numbers;
-      const pivot = number.length * amount;
+      let pivot = 0;
+      if (item.ticket_numbers) {
+        const { number, amount } = item.ticket_numbers;
+        pivot = number.length * amount;
+      }
       return (sum += pivot);
     }, 0);
   const TotalSmall = all_sales
     .filter(
       (item) =>
+        item.ticket_numbers &&
         item.ticket_numbers.gametype === "Small" &&
         item.ticket_numbers.category.includes(category!)
     )
     .reduce((sum, item) => {
-      const { number, amount } = item.ticket_numbers;
-      const pivot = number.length * amount;
+      let pivot = 0;
+      if (item.ticket_numbers) {
+        const { number, amount } = item.ticket_numbers;
+        pivot = number.length * amount;
+      }
       return (sum += pivot);
     }, 0);
   const TotalSum = TotalBig + TotalSmall;
@@ -50,7 +58,11 @@ export default function ReportTable({ all_sales, category }: Props) {
     if (!category) return;
     modal.setOpen(
       <CustomModal title="Order details" subheading="All order made by agent">
-        <ViewCustomerOrder all_sales={all_sales} draw_date={draw_date} category={category} />
+        <ViewCustomerOrder
+          all_sales={all_sales}
+          draw_date={draw_date}
+          category={category}
+        />
       </CustomModal>
     );
   };
@@ -75,16 +87,22 @@ export default function ReportTable({ all_sales, category }: Props) {
             {allDrawDates.map((dates) => {
               const ele = all_sales.filter(
                 (item) =>
+                  item.ticket_numbers &&
                   item.ticket_numbers.draw_date === dates &&
                   item.ticket_numbers.category.includes(category!)
               );
               const value = (gtype: string) => {
                 const array = ele.filter(
-                  (item) => item.ticket_numbers.gametype === gtype
+                  (item) =>
+                    item.ticket_numbers &&
+                    item.ticket_numbers.gametype === gtype
                 );
                 return array.reduce((sum, item) => {
-                  const { number, amount } = item.ticket_numbers;
-                  const pivot = number.length * amount;
+                  let pivot = 0;
+                  if (item.ticket_numbers) {
+                    const { number, amount } = item.ticket_numbers;
+                    pivot = number.length * amount;
+                  }
                   return (sum += pivot);
                 }, 0);
               };

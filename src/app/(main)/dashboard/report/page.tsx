@@ -4,7 +4,7 @@ import { RetrieveAllSales, currentAgent } from "@/server-actions";
 export const revalidate = 10;
 export default async function ReportPage() {
   const user = await currentAgent();
-  const allSales = (await RetrieveAllSales(user?.id!)) as AllSales[];
+  const allSales = await RetrieveAllSales() as AllSales[];
   const total_sales = allSales?.reduce((accumulator, current) => {
     const { ticket_numbers } = current;
     const { number, category, amount } = ticket_numbers!;
@@ -16,7 +16,7 @@ export default async function ReportPage() {
       <ReportUI
         user_id={user.id}
         total_sales={total_sales!}
-        all_sales={allSales}
+        all_sales={allSales.filter(item => item.user_id === user.id)}
       />
     </div>
   );

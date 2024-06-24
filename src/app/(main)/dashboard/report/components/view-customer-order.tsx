@@ -40,20 +40,27 @@ export default function ViewCustomerOrder({
   };
   const customerOrder = all_sales.filter(
     (item) =>
+      item.ticket_numbers &&
       item.ticket_numbers.draw_date === draw_date &&
       item.ticket_numbers.category.includes(category!)
   );
   const TotalValue = customerOrder.reduce((sum, item) => {
-    const { number, amount } = item.ticket_numbers;
-    const pivot = number.length * amount;
+    let pivot = 0;
+    if (item.ticket_numbers) {
+      const { number, amount } = item.ticket_numbers;
+      pivot = number.length * amount;
+    }
     return (sum += pivot);
   }, 0);
   const TotalTicketValue = (currentView: string) => {
     return customerOrder
       .filter((order) => order.ticket_num_id === currentView)
       .reduce((sum, item) => {
-        const { number, amount } = item.ticket_numbers;
-        const pivot = number.length * amount;
+        let pivot = 0;
+        if (item.ticket_numbers) {
+          const { number, amount } = item.ticket_numbers;
+          pivot = number.length * amount;
+        }
         return (sum += pivot);
       }, 0);
   };
@@ -88,17 +95,20 @@ export default function ViewCustomerOrder({
                       {order.ticket_num_id.substring(0, 8)}
                     </TableCell>
                     <TableCell className=" text-center">
-                      {order.ticket_numbers.number[0]}
+                      {order.ticket_numbers && order.ticket_numbers.number[0]}
                     </TableCell>
                     <TableCell className="text-center">
-                      {!order.ticket_numbers.boxbet ? "None" : "Box"}
+                      {order.ticket_numbers && order.ticket_numbers.boxbet
+                        ? "None"
+                        : "Box"}
                     </TableCell>
                     <TableCell className="text-center">
-                      {order.ticket_numbers.gametype}
+                      {order.ticket_numbers && order.ticket_numbers.gametype}
                     </TableCell>
                     <TableCell className="text-center">
-                      {order.ticket_numbers.amount *
-                        order.ticket_numbers.number.length}
+                      {order.ticket_numbers &&
+                        order.ticket_numbers.amount *
+                          order.ticket_numbers.number.length}
                     </TableCell>
                   </TableRow>
                 ))
@@ -155,8 +165,9 @@ export default function ViewCustomerOrder({
                 {order.phone_number}
               </TableCell>
               <TableCell className="text-center">
-                {order.ticket_numbers.amount *
-                  order.ticket_numbers.number.length}
+                {order.ticket_numbers &&
+                  order.ticket_numbers.amount *
+                    order.ticket_numbers.number.length}
               </TableCell>
             </TableRow>
           ))
