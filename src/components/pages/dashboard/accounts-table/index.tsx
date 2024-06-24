@@ -33,14 +33,16 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
   user_id: string;
   role: string;
-  tier: string
+  tier: string;
+  commission_value: RootCommission | undefined;
 }
 export default function SubAccountsDataTable<TData, TValue>({
   columns,
   data,
   user_id,
   role,
-  tier
+  tier,
+  commission_value,
 }: DataTableProps<TData, TValue>) {
   const modal = useModal();
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -51,7 +53,12 @@ export default function SubAccountsDataTable<TData, TValue>({
         subheading="Create new agent sub account. Please provide all credentials below."
       >
         <Separator className="my-4" />
-        <CreateSubAccountForm user_id={user_id} role={role} tier={tier} />
+        <CreateSubAccountForm
+          user_id={user_id}
+          role={role}
+          tier={tier}
+          commission_value={commission_value}
+        />
       </CustomModal>
     );
   };

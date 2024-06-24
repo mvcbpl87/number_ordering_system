@@ -14,6 +14,7 @@ import SubAccountsPage from "@/components/pages/dashboard/sub-accounts";
 import {
   RetrieveAllSales,
   RetrieveAllSubAccounts,
+  RetrieveRootCommission,
   currentAgent,
 } from "@/server-actions";
 import { createClient } from "@/supabase/server";
@@ -58,37 +59,49 @@ const SalesContent = [
 
 export const revalidate = 20;
 export default async function MainPage() {
+  let monthlySales = 0;
+  let weeklySales = 0;
+  let dailySales = 0;
+  let initial = 0;
   // await new Promise(resolve => setTimeout(resolve, 3000))
   const user = await currentAgent();
-  const allSales = await RetrieveAllSales(user?.id!);
+  const allSales = await RetrieveAllSales();
   const allSubAccounts = await RetrieveAllSubAccounts(user?.id!);
-  const initial = 0;
-  const monthlySales = allSales?.reduce((accumulator, current) => {
-    const { ticket_numbers } = current;
-    const { number, category, amount } = ticket_numbers!;
-    const pivot = number.length * amount * category.length;
-    return (accumulator += pivot);
-  }, initial);
+  const root_commission = await RetrieveRootCommission();
 
-  const weeklySales = allSales
-    ?.filter((sales) =>
-      WeekTimeFrame().includes(ISOTimeFormater(sales.created_at))
-    )
-    .reduce((accumulator, current) => {
+  if (allSales) {
+    const currentUserSales = allSales?.filter(
+      (item) => item.user_id === user.id
+    );
+    monthlySales = currentUserSales.reduce((accumulator, current) => {
       const { ticket_numbers } = current;
       const { number, category, amount } = ticket_numbers!;
       const pivot = number.length * amount * category.length;
       return (accumulator += pivot);
     }, initial);
 
-  const dailySales = allSales
-    ?.filter((sales) => ISOTimeFormater(sales.created_at) === DailyTimeFrame())
-    .reduce((accumulator, current) => {
-      const { ticket_numbers } = current;
-      const { number, category, amount } = ticket_numbers!;
-      const pivot = number.length * amount * category.length;
-      return (accumulator += pivot);
-    }, initial);
+    weeklySales = currentUserSales
+      ?.filter((sales) =>
+        WeekTimeFrame().includes(ISOTimeFormater(sales.created_at))
+      )
+      .reduce((accumulator, current) => {
+        const { ticket_numbers } = current;
+        const { number, category, amount } = ticket_numbers!;
+        const pivot = number.length * amount * category.length;
+        return (accumulator += pivot);
+      }, initial);
+
+    dailySales = currentUserSales
+      ?.filter(
+        (sales) => ISOTimeFormater(sales.created_at) === DailyTimeFrame()
+      )
+      .reduce((accumulator, current) => {
+        const { ticket_numbers } = current;
+        const { number, category, amount } = ticket_numbers!;
+        const pivot = number.length * amount * category.length;
+        return (accumulator += pivot);
+      }, initial);
+  }
 
   return (
     <div className="bg-muted/20 flex flex-col flex-grow relative overflow-auto ">
@@ -105,7 +118,11 @@ export default async function MainPage() {
           </TabsList>
 
           <TabsContent value="subaccounts">
-            <SubAccountsPage user_id={user?.id!} subAccounts={allSubAccounts} />
+            <SubAccountsPage
+              user_id={user?.id!}
+              subAccounts={allSubAccounts}
+              commission_value={root_commission}
+            />
           </TabsContent>
 
           {/* Card Sales */}
@@ -145,13 +162,13 @@ export default async function MainPage() {
             <div className="grid grid-1 gap-4 flex-grow ">
               <Card>
                 <CardHeader>
-                  <CardTitle>Recent Sales</CardTitle>
+                  <CardTitle>Recent Sales (Downline)</CardTitle>
                   <CardDescription>
                     You made {allSales?.length} sales this month.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <RecentSales SubAccounts={allSubAccounts} />
+                  <RecentSales SubAccounts={allSubAccounts!} Sales={allSales} />
                 </CardContent>
               </Card>
             </div>

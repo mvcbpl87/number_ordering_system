@@ -29,6 +29,7 @@ export const CreateSubAccountSchema = z.object({
     .min(7, {
       message: "Password must be at least 7 characters long",
     }),
+  percent: z.number({ required_error: "Required commission rate" }),
 });
 
 export const ManageSubAccountSchema = z.object({
@@ -39,6 +40,7 @@ export const ManageSubAccountSchema = z.object({
   username: z.string().min(1, { message: "Please enter your username" }),
   role: z.string(),
   tier: z.string(),
+  percent: z.number({ required_error: "Required commission rate" }),
 });
 
 export const UserProfileSchema = z.object({
@@ -73,13 +75,14 @@ export type TierType = "1" | "2" | "3";
 export type RoleType = "Owner" | "Admin" | "Agent";
 export const TierTypeList: TierType[] = ["1", "2", "3"];
 export const RoleTypeList: RoleType[] = ["Owner", "Admin", "Agent"];
-export type SubAccountsColumnType = {
-  id: string;
-  email: string | null;
-  username: string | null;
-  role: string | null;
-  tier: string;
-};
+// export type SubAccountsColumnType = {
+//   id: string;
+//   email: string | null;
+//   username: string | null;
+//   role: string | null;
+//   tier: string;
+// };
+export type SubAccountsColumnType = UsersWCommission;
 
 export type shopType =
   | "Damacai"

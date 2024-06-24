@@ -5,9 +5,16 @@ declare global {
   type Users = Database["public"]["Tables"]["users"]["Row"];
   type CustomerOrders = Database["public"]["Tables"]["customer_orders"]["Row"];
   type TicketNumbers = Database["public"]["Tables"]["ticket_numbers"]["Row"];
-  type NewTicketNumbers = Partial<Database["public"]["Tables"]["ticket_numbers"]["Row"]>;
+  type Commission = Database["public"]["Tables"]["commission"]["Row"];
+  type RootCommission = Database["public"]["Tables"]["root_commission"]["Row"];
+
+  /* ----- Custom Type Exports ----- */
+  type UsersWCommission = Users & { commission: Commission | null };
+  type NewTicketNumbers = Partial<
+    Database["public"]["Tables"]["ticket_numbers"]["Row"]
+  >;
   type AllSales = CustomerOrders & {
-    ticket_numbers: TicketNumbers
+    ticket_numbers: TicketNumbers | null;
   };
   type AllSubAccounts = {
     id: Users["id"];

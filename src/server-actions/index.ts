@@ -1,6 +1,7 @@
 "use server";
 import type {
   CreateSubAccountSchemaType,
+  ManageSubAccountSchemaType,
   UserAuthSchemaType,
 } from "@/lib/types";
 import path from "@/lib/path";
@@ -20,6 +21,22 @@ export async function currentAgent() {
   return user;
 }
 
+export async function currentUserRoleTier(user_id: string) {
+  try {
+    const supabase = createClient();
+    const { error, data } = await supabase
+      .from("users")
+      .select("role, tier")
+      .eq("id", user_id)
+      .single();
+
+    if (error) throw new Error(error.message);
+    return data;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+}
 export async function RetrieveAgentCredentials(user_id: string) {
   const supabase = createClient();
   const { data } = await supabase
@@ -64,11 +81,12 @@ export async function CreateSubAccountAction(
 ) {
   try {
     const supabase = createSupabaseAdmin();
-    const { error } = await (
+    const { data, error } = await (
       await supabase
     ).auth.admin.createUser({
       email: values.email,
       password: values.password,
+      email_confirm: true,
       user_metadata: {
         username: values.username,
         email: values.email,
@@ -78,8 +96,22 @@ export async function CreateSubAccountAction(
       },
     });
     if (error) throw new Error();
-
+    if (data) await UpsertUserCommission(data.user.id, values.percent);
     return true;
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+export async function UpsertUserCommission(user_id: string, percent: number) {
+  try {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from("commission")
+      .upsert({ id: user_id, percent })
+      .select();
+    if (error) throw new Error(error.message);
+    console.log(data);
   } catch (err) {
     console.log(err);
   }
@@ -115,8 +147,23 @@ export async function CreateNewCustomerOrder(
   }
 }
 
+/* --- Read Commission percent (root)(!Im: HQ Specified) ---- */
+export async function RetrieveRootCommission() {
+  try {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from("root_commission")
+      .select()
+      .single();
+    if (error) throw new Error(error.message);
+    return data;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 /** (Read) Retrieve all sales made by Agent  */
-export async function RetrieveAllSales(user_id: string) {
+export async function RetrieveAllSales() {
   try {
     const currDate = new Date();
     const supabase = createClient();
@@ -124,8 +171,7 @@ export async function RetrieveAllSales(user_id: string) {
       .from("customer_orders")
       .select("*, ticket_numbers(*)")
       .gte("created_at", startOfMonth(currDate))
-      .lte("created_at", endOfMonth(currDate))
-      .eq("user_id", user_id);
+      .lte("created_at", endOfMonth(currDate));
 
     if (error) throw new Error();
     return data;
@@ -141,7 +187,8 @@ export const RetrieveAllSubAccounts = async (user_id: string) => {
     const supabase = createClient();
     const { error, data } = await supabase
       .from("users")
-      .select("id, username, email, role, tier")
+      // .select("id, username, email, role, tier")
+      .select("*, commission(*)")
       .eq("refer_to", user_id);
     if (error) throw new Error("Something wrong when fetching all subaccounts");
     return data;
@@ -150,12 +197,18 @@ export const RetrieveAllSubAccounts = async (user_id: string) => {
   }
 };
 
-export async function UpdateSubAccountAction(tier: string, user_id: string) {
+export async function UpdateSubAccountAction(
+  values: ManageSubAccountSchemaType,
+  user_id: string
+) {
   try {
     const supabase = createClient();
-    console.log(tier, user_id)
-    const { error } = await supabase.from("users").update({ tier }).eq("id", user_id);
+    const { error } = await supabase
+      .from("users")
+      .update({ tier: values.tier })
+      .eq("id", user_id);
     if (error) throw new Error("Unable to update subaccount credentials");
+    await UpsertUserCommission(user_id, values.percent);
   } catch (err) {
     console.log(err);
   }

@@ -55,6 +55,7 @@ export function ManageSubAccountForm({
     email: !credentials.email ? "" : credentials.email,
     role: !credentials.role ? "" : credentials.role,
     tier: !credentials.tier ? "1" : credentials.tier,
+    percent: !credentials ? 0 : credentials.commission?.percent,
   };
   const form = useForm<ManageSubAccountSchemaType>({
     resolver: zodResolver(ManageSubAccountSchema),
@@ -63,7 +64,7 @@ export function ManageSubAccountForm({
   });
   async function onSubmit(data: ManageSubAccountSchemaType) {
     try {
-      await UpdateSubAccountAction(data.tier, credentials.id);
+      await UpdateSubAccountAction(data, credentials.id);
       toast({
         variant: "successful",
         title: "Successfully update subaccount",
@@ -111,79 +112,102 @@ export function ManageSubAccountForm({
                 </FormItem>
               )}
             />
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="role"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Role</FormLabel>
+                    <Select onValueChange={field.onChange}>
+                      <FormControl>
+                        <SelectTrigger
+                          disabled={credentials.role === "Agent" && true}
+                        >
+                          <SelectValue
+                            placeholder={
+                              credentials.role
+                                ? credentials.role
+                                : "Select type of role"
+                            }
+                          />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {RoleTypeList.map((role, i) => (
+                          <SelectItem value={role} key={`role-${role}`}>
+                            {role}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>
+                      You role was predetermined and only admin has authority to
+                      edit.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="tier"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tier</FormLabel>
+                    <Select onValueChange={field.onChange}>
+                      <FormControl>
+                        <SelectTrigger
+                          disabled={Number(credentials.tier) < 1 && true}
+                        >
+                          <SelectValue
+                            placeholder={
+                              credentials.tier
+                                ? credentials.tier
+                                : "Select type of tier"
+                            }
+                          />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {TierTypeList.map((tier, i) => (
+                          <SelectItem value={tier} key={`tier-${tier}`}>
+                            {tier}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>
+                      This tier can only modified by higher upline.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
             <FormField
               control={form.control}
-              name="role"
+              name="percent"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Role</FormLabel>
-                  <Select onValueChange={field.onChange}>
-                    <FormControl>
-                      <SelectTrigger
-                        disabled={credentials.role === "Agent" && true}
-                      >
-                        <SelectValue
-                          placeholder={
-                            credentials.role
-                              ? credentials.role
-                              : "Select type of role"
-                          }
-                        />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {RoleTypeList.map((role, i) => (
-                        <SelectItem value={role} key={`role-${role}`}>
-                          {role}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormDescription>
-                    You role was predetermined and only admin has authority to
-                    edit.
-                  </FormDescription>
+                <FormItem className="space-y-1">
+                  <FormLabel>Commission rate (%)</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="20%"
+                      value={field.value}
+                      onChange={(e) => {
+                        if (!isNaN(Number(e.target.value))) {
+                          field.onChange(Number(e.target.value));
+                        }
+                      }}
+                      type="number"
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-
-            <FormField
-              control={form.control}
-              name="tier"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Tier</FormLabel>
-                  <Select onValueChange={field.onChange}>
-                    <FormControl>
-                      <SelectTrigger
-                        disabled={Number(credentials.tier) < 1 && true}
-                      >
-                        <SelectValue
-                          placeholder={
-                            credentials.tier
-                              ? credentials.tier
-                              : "Select type of tier"
-                          }
-                        />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {TierTypeList.map((tier, i) => (
-                        <SelectItem value={tier} key={`tier-${tier}`}>
-                          {tier}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormDescription>
-                    This tier can only modified by higher upline.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
             <Button className="mt-2" loading={isLoading}>
               Save changes
             </Button>

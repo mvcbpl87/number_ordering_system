@@ -9,19 +9,17 @@ import { cn } from "@/lib/utils";
 import { sidelinks } from "../../../test/sidelinks";
 import { SideLinks, SideLinksList } from "./sidelinks";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 interface SidebarProps extends React.HTMLAttributes<HTMLElement> {
   // isCollapsed: boolean
   // setIsCollapsed: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-export default function Sidebar({
-  className,
-}: // isCollapsed,
-// setIsCollapsed,
-SidebarProps) {
+export default function Sidebar({ className }: SidebarProps) {
   const [navOpened, setNavOpened] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const currentPath = usePathname();
   /* Make body not scrollable when navBar is opened */
   useEffect(() => {
     if (navOpened) {
@@ -129,7 +127,7 @@ SidebarProps) {
                     }),
                     "h-12 w-full justify-start  gap-2 whitespace-wrap ",
                     isCollapsed && "rounded justify-center",
-                    
+                    currentPath === link.href && "bg-primary text-background"
                   )}
                 >
                   <link.icon size={18} />

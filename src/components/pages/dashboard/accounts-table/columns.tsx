@@ -7,8 +7,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -30,30 +28,40 @@ import { IconEdit } from "@tabler/icons-react";
 import { useModal } from "@/components/provider/modal-provider";
 import { CustomModal } from "@/components/shared/custom-modal";
 import { ManageSubAccountForm } from "@/components/form/manage-subaccount-form";
+import { Badge } from "@/components/ui/badge";
 
 export const columns: ColumnDef<SubAccountsColumnType, any>[] = [
   {
-    accessorKey: "id",
-    header: "Agent Id",
+    accessorKey: "email",
+    header: "users",
     cell: ({ row }) => {
-      const id = row.getValue("id") as string;
-      return <div>{id.substring(0, 8)}</div>;
+      const { username, email } = row.original;
+      return (
+        <div className="flex flex-col gap-2 items-center text-start">
+          <div>{username}</div>
+          <div>{email}</div>
+        </div>
+      );
     },
   },
   {
-    accessorKey: "email",
-    header: "Email",
-    cell: ({ row }) => <div>{row.getValue("email")}</div>,
-  },
-  {
-    accessorKey: "username",
-    header: "Username",
-    cell: ({ row }) => <div>{row.getValue("username")}</div>,
+    accessorKey: "commission",
+    header: "commission rate (%)",
+    cell: ({ row }) => (
+      <div className="text-center">{`${row.original.commission?.percent}%`}</div>
+    ),
   },
   {
     accessorKey: "role",
     header: "Role",
-    cell: ({ row }) => <div>{row.getValue("role")}</div>,
+    cell: ({ row }) => {
+      const { role, tier } = row.original;
+      return (
+        <div className="flex items-center justify-center">
+          <Badge variant={"secondary"}>{`${role} Tier-${tier}`}</Badge>
+        </div>
+      );
+    },
   },
   {
     id: "actions",
@@ -61,7 +69,7 @@ export const columns: ColumnDef<SubAccountsColumnType, any>[] = [
     cell: ({ row }) => {
       const data = row.original;
       const user_id = data.id;
-      return <ActionDropdown user_id={user_id} data={data}/>
+      return <ActionDropdown user_id={user_id} data={data} />;
     },
   },
 ];

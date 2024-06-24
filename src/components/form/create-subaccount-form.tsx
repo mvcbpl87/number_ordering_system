@@ -34,7 +34,8 @@ import { useRouter } from "next/navigation";
 interface CreateSubAccountFormProps extends HTMLAttributes<HTMLDivElement> {
   user_id: string;
   role: string | undefined;
-  tier:string,
+  tier: string;
+  commission_value: RootCommission | undefined;
 }
 
 export function CreateSubAccountForm({
@@ -42,6 +43,7 @@ export function CreateSubAccountForm({
   role,
   user_id,
   tier,
+  commission_value,
   ...props
 }: CreateSubAccountFormProps) {
   const [isLoading, setIsLoading] = useState(false);
@@ -56,7 +58,8 @@ export function CreateSubAccountForm({
       role: role ? role : "",
       parent: user_id /* !important dependency */,
       password: "",
-      tier
+      tier,
+      percent: !commission_value ? 0 : commission_value.percent,
     },
   });
   async function onSubmit(data: CreateSubAccountSchemaType) {
@@ -74,8 +77,8 @@ export function CreateSubAccountForm({
         title: "Uh oh! Something went wrong.",
         description: `${error}`,
       });
-    } finally{
-        router.refresh()
+    } finally {
+      router.refresh();
     }
   }
 
@@ -118,7 +121,7 @@ export function CreateSubAccountForm({
                   <FormLabel>Role</FormLabel>
                   <Select onValueChange={field.onChange}>
                     <FormControl>
-                      <SelectTrigger disabled={role === "Agent" && true }>
+                      <SelectTrigger disabled={role === "Agent" && true}>
                         <SelectValue
                           placeholder={role ? role : "Select type of role"}
                         />
@@ -136,6 +139,28 @@ export function CreateSubAccountForm({
                     You role was predetermined and only admin has authority to
                     edit.
                   </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="percent"
+              render={({ field }) => (
+                <FormItem className="space-y-1">
+                  <FormLabel>Commission rate (%)</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="20%"
+                      value={field.value}
+                      onChange={(e) => {
+                        if (!isNaN(Number(e.target.value))) {
+                          field.onChange(Number(e.target.value));
+                        }
+                      }}
+                      type="number"
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
