@@ -75,13 +75,6 @@ export type TierType = "1" | "2" | "3";
 export type RoleType = "Owner" | "Admin" | "Agent";
 export const TierTypeList: TierType[] = ["1", "2", "3"];
 export const RoleTypeList: RoleType[] = ["Owner", "Admin", "Agent"];
-// export type SubAccountsColumnType = {
-//   id: string;
-//   email: string | null;
-//   username: string | null;
-//   role: string | null;
-//   tier: string;
-// };
 export type SubAccountsColumnType = UsersWCommission;
 
 export type shopType =
@@ -157,3 +150,11 @@ export const CategoryList: CategoryListType[] = [
     tag: "sport_toto",
   },
 ];
+
+export type InputTicketInstanceType = {
+  id: string;
+  number: string;
+  boxbet: boolean;
+  big: number;
+  small: number;
+};

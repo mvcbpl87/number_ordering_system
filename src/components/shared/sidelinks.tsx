@@ -68,7 +68,7 @@ const Game = {
   id: "side-game",
   type: "Game",
   label: "Go to Lottery game",
-  href: path.order,
+  href: path.game,
   icon: IconGoGame,
 };
 const Settings = {

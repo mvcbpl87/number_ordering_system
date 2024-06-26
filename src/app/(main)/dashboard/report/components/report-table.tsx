@@ -3,15 +3,13 @@ import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableFooter,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { shopType } from "@/lib/types";
-import { DatePreset } from "@/utils/draw-date-generator";
+import { DatePreset2 } from "@/lib/game-utils/draw-date-generator/preset";
 import { IconPrinter } from "@tabler/icons-react";
 import ViewCustomerOrder from "./view-customer-order";
 import { useModal } from "@/components/provider/modal-provider";
@@ -20,13 +18,13 @@ type Props = {
   category: string | null;
 };
 export default function ReportTable({ all_sales, category }: Props) {
-  const allDrawDates = new DatePreset().GET_DRAW_DATE();
+  const allDrawDates = new DatePreset2().GET_DRAW_DATE();
   const modal = useModal();
   const TotalBig = all_sales
     .filter(
       (item) =>
         item.ticket_numbers &&
-        item.ticket_numbers!.gametype === "Big" &&
+        item.ticket_numbers.gametype === "Big" &&
         item.ticket_numbers.category.includes(category!)
     )
     .reduce((sum, item) => {
@@ -101,6 +99,7 @@ export default function ReportTable({ all_sales, category }: Props) {
                   let pivot = 0;
                   if (item.ticket_numbers) {
                     const { number, amount } = item.ticket_numbers;
+
                     pivot = number.length * amount;
                   }
                   return (sum += pivot);

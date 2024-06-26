@@ -1,6 +1,4 @@
-import { AgentOrderTicketsType, schema } from "@/utils/lib/types";
-import { supabase } from "@/utils/supabase/spbClient";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Table,
   TableBody,

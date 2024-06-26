@@ -1,6 +1,6 @@
 "use client";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { category_type } from "@/components/shared/template";
+import { CategoryList } from "@/lib/types";
 import Image from "next/image";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -47,7 +47,7 @@ export default function ReportUI({ user_id, total_sales, all_sales }: Props) {
 
       <div className="flex items-center justify-between ">
         <ToggleGroup type="single">
-          {category_type.map((category) => (
+          {CategoryList.map((category) => (
             <ToggleGroupItem
               value={category.name}
               key={category.name}
