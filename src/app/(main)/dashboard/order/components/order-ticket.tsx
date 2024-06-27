@@ -21,12 +21,14 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { IconCirclePlus } from "@tabler/icons-react";
+import { IconAlertCircle, IconCirclePlus } from "@tabler/icons-react";
 import { Toggle } from "@/components/ui/toggle";
 import { cn } from "@/lib/utils";
 import { getUniquePermutation } from "@/lib/game-utils/permutation";
 import OrderSubmit from "./order-submit";
 import UseOrderHooks from "./useOrderHooks";
+import LuckyPick from "@/lib/game-utils/number-generator";
+import { Badge } from "@/components/ui/badge";
 
 interface OrderTicketProps {
   categories: string[];
@@ -43,11 +45,13 @@ export default function OrderTicket({
 }: OrderTicketProps) {
   const {
     metadata,
+    isInCompleteList,
     handleNumberChange,
     handleBoxbetChange,
     handleBigChange,
     handleSmallChange,
     addNewColumn,
+    checkInComplete,
   } = UseOrderHooks();
 
   const TotalPrice = () => {
@@ -55,7 +59,7 @@ export default function OrderTicket({
       let max_num = 1;
       const { big, small, number, boxbet } = item;
       if (boxbet) {
-        const boxbet_num = Array.from(number).map((num) => Number(num));
+        const boxbet_num = Array.from(number, (num) => Number(num));
         const permutations = getUniquePermutation(boxbet_num);
         max_num = permutations.length;
       }
@@ -67,7 +71,17 @@ export default function OrderTicket({
   return (
     <Card>
       <CardHeader className="px-7">
-        <CardTitle>Total Price: {TotalPrice().toFixed(2)}</CardTitle>
+        <CardTitle>
+          <div className="flex items-center gap-2">
+            <span className="whitespace-pre-wrap">
+              Total Price: {TotalPrice().toFixed(2)}
+            </span>
+            <div className="px-4 py-1 bg-accent rounded-full border text-xs">
+              Selected categories:&nbsp;{categories.length}
+            </div>
+            {/* <Badge variant={'secondary'}></Badge> */}
+          </div>
+        </CardTitle>
         <CardDescription>
           {disabled ? (
             <span className="text-destructive">
@@ -92,86 +106,120 @@ export default function OrderTicket({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {metadata.map((item) => (
-              <TableRow key={item.id}>
-                <TableCell className="font-medium">
-                  <div className="flex items-center justify-center">
-                    <Button size={"sm"} disabled={disabled}>
-                      LP
-                    </Button>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex justify-center items-center">
-                    <InputOTP
-                      disabled={disabled}
-                      maxLength={4}
-                      value={item.number}
-                      onChange={(value) => handleNumberChange(item.id, value)}
-                    >
-                      <InputOTPGroup>
-                        <InputOTPSlot index={0} />
-                        <InputOTPSlot index={1} />
-                        <InputOTPSlot index={2} />
-                        <InputOTPSlot index={3} />
-                      </InputOTPGroup>
-                    </InputOTP>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center justify-center">
-                    <Toggle
-                      disabled={disabled}
-                      pressed={item.boxbet}
-                      onPressedChange={(press) =>
-                        handleBoxbetChange(item.id, press)
-                      }
-                      size={"sm"}
-                      className={cn(
-                        " font-normal text-xs",
-                        item.boxbet &&
-                          "data-[state=on]:bg-primary data-[state=on]:text-background"
-                      )}
-                      variant={"outline"}
-                    >
-                      Boxbet
-                    </Toggle>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center justify-center relative">
-                    <Input
-                      disabled={disabled || item.number === ""}
-                      placeholder="big"
-                      className="text-center w-[70%]"
-                      type="number"
-                      value={item.big}
-                      onChange={(e) => {
-                        if (!isNaN(Number(e.target.value))) {
-                          handleBigChange(item.id, Number(e.target.value));
+            {metadata.map((item) => {
+              const isInCompleteNumber = isInCompleteList.find(
+                (exist_item_id) => exist_item_id === item.id
+              )
+                ? true
+                : false;
+              return (
+                <TableRow key={item.id}>
+                  <TableCell className="font-medium">
+                    <div className="flex items-center justify-center">
+                      <Button
+                        size={"sm"}
+                        disabled={disabled}
+                        onClick={() => {
+                          const value = new LuckyPick().GetLuckyPick();
+                          handleNumberChange(item.id, value);
+                        }}
+                      >
+                        LP
+                      </Button>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex justify-center items-center gap-2">
+                      <InputOTP
+                        disabled={disabled}
+                        maxLength={4}
+                        value={item.number}
+                        onChange={(value) => handleNumberChange(item.id, value)}
+                        onBlur={(e) => checkInComplete(e, item.id)}
+                      >
+                        <InputOTPGroup>
+                          {Array.from({ length: 4 }, (_, i) => i).map(
+                            (slot_index) => (
+                              <InputOTPSlot
+                                index={slot_index}
+                                key={`InputOTPSlot-${slot_index + 1}`}
+                                className={cn(
+                                  isInCompleteNumber && "border-destructive"
+                                )}
+                              />
+                            )
+                          )}
+                        </InputOTPGroup>
+                      </InputOTP>
+                      <IconAlertCircle
+                        className={cn(
+                          "h-4 w-4 opacity-10",
+                          isInCompleteNumber && "opacity-100 text-destructive"
+                        )}
+                      />
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center justify-center">
+                      <Toggle
+                        disabled={disabled}
+                        pressed={item.boxbet}
+                        onPressedChange={(press) =>
+                          handleBoxbetChange(item.id, press)
                         }
-                      }}
-                    />
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center justify-center relative">
-                    <Input
-                      disabled={disabled || item.number === ""}
-                      placeholder="small"
-                      className="text-center w-[70%]"
-                      type="number"
-                      value={item.small}
-                      onChange={(e) => {
-                        if (!isNaN(Number(e.target.value))) {
-                          handleSmallChange(item.id, Number(e.target.value));
+                        size={"sm"}
+                        className={cn(
+                          " font-normal text-xs",
+                          item.boxbet &&
+                            "data-[state=on]:bg-primary data-[state=on]:text-background"
+                        )}
+                        variant={"outline"}
+                      >
+                        Boxbet
+                      </Toggle>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center justify-center relative">
+                      <Input
+                        disabled={
+                          disabled || item.number === "" || isInCompleteNumber
                         }
-                      }}
-                    />
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
+                        placeholder="big"
+                        className="text-center w-[70%]"
+                        type="number"
+                        value={item.big}
+                        onChange={(e) => {
+                          if (Number(e.target.value) < 0) return;
+                          if (!isNaN(Number(e.target.value))) {
+                            handleBigChange(item.id, Number(e.target.value));
+                          }
+                        }}
+                      />
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center justify-center relative">
+                      <Input
+                        disabled={
+                          disabled || item.number === "" || isInCompleteNumber
+                        }
+                        placeholder="small"
+                        className="text-center w-[70%]"
+                        type="number"
+                        value={item.small}
+                        onChange={(e) => {
+                          if (Number(e.target.value) < 0) return;
+                          if (!isNaN(Number(e.target.value))) {
+                            handleSmallChange(item.id, Number(e.target.value));
+                          }
+                        }}
+                      />
+                    </div>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
             <TableRow>
               <TableCell colSpan={5}>
                 <div className="flex justify-center p-4">
@@ -192,6 +240,7 @@ export default function OrderTicket({
               <TableCell colSpan={5}>
                 <div className="flex justify-center p-4">
                   <OrderSubmit
+                    isInCompleteList={isInCompleteList}
                     metadata={metadata}
                     disabled={disabled}
                     categories={categories}

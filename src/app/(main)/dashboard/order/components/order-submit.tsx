@@ -13,6 +13,7 @@ import { useState } from "react";
 interface OrderSubmitProps {
   disabled: boolean;
   metadata: InputTicketInstanceType[];
+  isInCompleteList: string[];
   categories: string[];
   drawDate: string;
   user_id: string;
@@ -21,6 +22,7 @@ interface OrderSubmitProps {
 export default function OrderSubmit({
   metadata,
   disabled,
+  isInCompleteList,
   categories,
   drawDate,
   user_id,
@@ -77,10 +79,16 @@ export default function OrderSubmit({
   const handleSubmit = async () => {
     try {
       setIsLoading(true);
+
+      if (isInCompleteList.length > 0)
+        throw new Error("Please complete your number before submitting.");
+
       /* -------- Critical Section -------- */
       const orders = ManageOrderMetadata();
 
       const receipt_id = generateUUID();
+
+      /** ------ server action ------ **/
       const newTicketOrders = await CreateNewTicketOrder(orders);
       if (newTicketOrders) {
         const customerOrders: Partial<CustomerOrders>[] = newTicketOrders?.map(
@@ -93,6 +101,8 @@ export default function OrderSubmit({
         );
         await CreateNewCustomerOrder(customerOrders);
       }
+      /** ---- end of server action ---- **/
+
       addNewMetadata(orders as TicketNumbers[], {
         receipt_id,
         phone_number,
