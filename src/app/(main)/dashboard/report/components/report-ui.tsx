@@ -1,38 +1,21 @@
 "use client";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { CategoryList } from "@/lib/types";
-import Image from "next/image";
+import { IconImage } from "@/components/shared/IconImgTemplate";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import CardSales from "@/components/pages/dashboard/card-sales";
-import { IconCurrencyDollar } from "@tabler/icons-react";
+import { IconCurrencyDollar, IconPrinter } from "@tabler/icons-react";
 import ReportTable from "./report-table";
+import { Button } from "@/components/ui/button";
 
-const Icon = ({ alt, src }: { alt?: string; src?: string }) => {
-  const style = `rounded-lg w-6 h-6 relative`;
-  const img = "rounded-full border border-black/20";
-  if (!alt || !src) return;
-  return (
-    <div className={style}>
-      <Image
-        fill
-        priority
-        className={img}
-        alt={alt}
-        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-        style={{ objectFit: "contain" }}
-        src={src}
-      />
-    </div>
-  );
-};
 type Props = {
   user_id: string;
   total_sales: number;
   all_sales: AllSales[];
 };
 export default function ReportUI({ user_id, total_sales, all_sales }: Props) {
-  const [currCategory, setCurrCategory] = useState<string | null>(null);
+  const [currCategory, setCurrCategory] = useState<string>("all");
   return (
     <div className=" p-4 flex flex-col flex-grow space-y-[1rem]">
       <div className="grid grid-cols-4 ">
@@ -46,7 +29,18 @@ export default function ReportUI({ user_id, total_sales, all_sales }: Props) {
       </div>
 
       <div className="flex items-center justify-between ">
-        <ToggleGroup type="single">
+        <ToggleGroup type="single" defaultValue="all">
+          <ToggleGroupItem
+            value={"all"}
+            variant={"outline"}
+            onClick={() => setCurrCategory("all")}
+            className={cn(
+              currCategory === "all" &&
+                "data-[state=on]:bg-primary data-[state=on]:text-background"
+            )}
+          >
+            All categories
+          </ToggleGroupItem>
           {CategoryList.map((category) => (
             <ToggleGroupItem
               value={category.name}
@@ -55,14 +49,21 @@ export default function ReportUI({ user_id, total_sales, all_sales }: Props) {
               variant={"outline"}
               className={cn(
                 "flex items-center gap-1 ",
-                currCategory === category.name && "bg-blue-800"
+                currCategory === category.name &&
+                  "data-[state=on]:bg-primary data-[state=on]:text-background"
               )}
             >
-              <Icon src={category.src} alt={category.alt} />
+              <IconImage src={category.src} alt={category.alt} />
               {category.name}
             </ToggleGroupItem>
           ))}
         </ToggleGroup>
+        <div>
+          <Button className="flex items-center gap-1" >
+            <IconPrinter size={15} />
+            Download Report
+          </Button>
+        </div>
       </div>
       <ReportTable all_sales={all_sales} category={currCategory} />
     </div>

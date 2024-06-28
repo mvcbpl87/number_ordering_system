@@ -1,11 +1,28 @@
 import ReportUI from "@/app/(main)/dashboard/report/components/report-ui";
+import { DatePreset2 } from "@/lib/game-utils/draw-date-generator/preset";
 import { RetrieveAllSales, currentAgent } from "@/server-actions";
+import { FilterDrawDateAndUserId } from "./components/hooks";
 
 export const revalidate = 10;
 export default async function ReportPage() {
+  let allSales: AllSales[] = [];
   const user = await currentAgent();
-  const allSales = await RetrieveAllSales() as AllSales[];
-  const total_sales = allSales?.reduce((accumulator, current) => {
+  const allDrawDates = new DatePreset2().GET_DRAW_DATE();
+  /**
+   * var: allSales fetch from server
+   * @returns AllSales[] within a month time
+   *
+   * !Important for report
+   * need to limit sales by few conditions
+   * - All Sales must within the preset time period
+   * and current userid only
+   */
+  const getSales = await RetrieveAllSales();
+  allSales = !getSales ? [] : getSales;
+
+  allSales = FilterDrawDateAndUserId(allSales, user.id);
+  
+  const total_sales = allSales.reduce((accumulator, current) => {
     const { ticket_numbers } = current;
     const { number, category, amount } = ticket_numbers!;
     const pivot = number.length * amount * category.length;
@@ -16,7 +33,7 @@ export default async function ReportPage() {
       <ReportUI
         user_id={user.id}
         total_sales={total_sales!}
-        all_sales={allSales.filter(item => item.user_id === user.id)}
+        all_sales={allSales}
       />
     </div>
   );

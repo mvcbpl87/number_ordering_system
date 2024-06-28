@@ -13,51 +13,34 @@ import { DatePreset2 } from "@/lib/game-utils/draw-date-generator/preset";
 import { IconPrinter } from "@tabler/icons-react";
 import ViewCustomerOrder from "./view-customer-order";
 import { useModal } from "@/components/provider/modal-provider";
+import {
+  FilterCategory,
+  FilterDrawDate,
+  FilterGametype,
+  TotalSales,
+} from "./hooks";
 type Props = {
   all_sales: AllSales[];
-  category: string | null;
+  category: string;
 };
 export default function ReportTable({ all_sales, category }: Props) {
+  let TotalBig = 0;
+  let TotalSmall = 0;
+  let TotalSum = 0;
   const allDrawDates = new DatePreset2().GET_DRAW_DATE();
   const modal = useModal();
-  const TotalBig = all_sales
-    .filter(
-      (item) =>
-        item.ticket_numbers &&
-        item.ticket_numbers.gametype === "Big" &&
-        item.ticket_numbers.category.includes(category!)
-    )
-    .reduce((sum, item) => {
-      let pivot = 0;
-      if (item.ticket_numbers) {
-        const { number, amount } = item.ticket_numbers;
-        pivot = number.length * amount;
-      }
-      return (sum += pivot);
-    }, 0);
-  const TotalSmall = all_sales
-    .filter(
-      (item) =>
-        item.ticket_numbers &&
-        item.ticket_numbers.gametype === "Small" &&
-        item.ticket_numbers.category.includes(category!)
-    )
-    .reduce((sum, item) => {
-      let pivot = 0;
-      if (item.ticket_numbers) {
-        const { number, amount } = item.ticket_numbers;
-        pivot = number.length * amount;
-      }
-      return (sum += pivot);
-    }, 0);
-  const TotalSum = TotalBig + TotalSmall;
+  const sales: AllSales[] = FilterCategory(all_sales, category);
+
+  TotalBig = TotalSales(FilterGametype(sales, "Big"), category);
+  TotalSmall = TotalSales(FilterGametype(sales, "Small"), category);
+  TotalSum = TotalBig + TotalSmall;
 
   const viewOrderDetail = (draw_date: string) => {
     if (!category) return;
     modal.setOpen(
       <CustomModal title="Order details" subheading="All order made by agent">
         <ViewCustomerOrder
-          all_sales={all_sales}
+          all_sales={FilterDrawDate(sales, draw_date)}
           draw_date={draw_date}
           category={category}
         />
@@ -66,12 +49,6 @@ export default function ReportTable({ all_sales, category }: Props) {
   };
   return (
     <div className="flex flex-col flex-grow space-y-[1rem]">
-      <div>
-        <Button className="flex items-center">
-          <IconPrinter size={15} />
-          Download Report
-        </Button>
-      </div>
       <div className="border rounded h-full flex flex-grow flex-col">
         <Table className="  ">
           <TableHeader>
@@ -83,27 +60,12 @@ export default function ReportTable({ all_sales, category }: Props) {
           </TableHeader>
           <TableBody className="">
             {allDrawDates.map((dates) => {
-              const ele = all_sales.filter(
+              const ele = sales.filter(
                 (item) =>
-                  item.ticket_numbers &&
-                  item.ticket_numbers.draw_date === dates &&
-                  item.ticket_numbers.category.includes(category!)
+                  item.ticket_numbers && item.ticket_numbers.draw_date === dates
               );
               const value = (gtype: string) => {
-                const array = ele.filter(
-                  (item) =>
-                    item.ticket_numbers &&
-                    item.ticket_numbers.gametype === gtype
-                );
-                return array.reduce((sum, item) => {
-                  let pivot = 0;
-                  if (item.ticket_numbers) {
-                    const { number, amount } = item.ticket_numbers;
-
-                    pivot = number.length * amount;
-                  }
-                  return (sum += pivot);
-                }, 0);
+                return TotalSales(FilterGametype(ele, gtype), category);
               };
               return (
                 <TableRow
@@ -114,10 +76,10 @@ export default function ReportTable({ all_sales, category }: Props) {
                   <TableCell className="font-medium text-center">
                     {dates}
                   </TableCell>
-                  <TableCell className="text-center">
+                  <TableCell className="text-center w-[300px]">
                     {value("Big").toFixed(2)}
                   </TableCell>
-                  <TableCell className="text-center">
+                  <TableCell className="text-center w-[300px]">
                     {value("Small").toFixed(2)}
                   </TableCell>
                 </TableRow>
@@ -128,14 +90,15 @@ export default function ReportTable({ all_sales, category }: Props) {
             <TableRow className="bg-white h-[3.5rem]">
               <TableCell className="text-end ">{null}</TableCell>
               <TableCell className="text-center ">
-                RM{TotalBig.toFixed(2)}
+                RM
+                {TotalBig.toFixed(2)}
               </TableCell>
               <TableCell className="text-center">
                 RM{TotalSmall.toFixed(2)}
               </TableCell>
             </TableRow>
             <TableRow className=" h-[3.5rem]">
-              <TableCell className="text-end ">{null}</TableCell>
+              <TableCell className="text-end sr-only ">Blank</TableCell>
               <TableCell className="text-center">Total</TableCell>
               <TableCell className="text-center">
                 RM{TotalSum.toFixed(2)}
