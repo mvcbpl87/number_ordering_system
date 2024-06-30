@@ -197,6 +197,27 @@ export const RetrieveAllSubAccounts = async (user_id: string) => {
   }
 };
 
+/* --- Retrieve Winning Orders ---*/
+export async function RetrieveWinningOrders(
+  category: string,
+  draw_date: string
+) {
+  try {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from("winning_orders")
+      .select(
+        "number, draw_date, gametype, category, claimed, customer_orders(id, phone_number, users(username, email)), prizes(prize_type, prize_value) "
+      )
+      .eq("draw_date", draw_date)
+      .eq("category", category);
+    if (error) throw new Error(error.message);
+    return data;
+  } catch (err) {
+    console.log(err);
+  }
+}
+
 export async function UpdateSubAccountAction(
   values: ManageSubAccountSchemaType,
   user_id: string

@@ -12,6 +12,17 @@ export function endOfMonth(date: Date) {
   return new Date(date.getFullYear(), date.getMonth() + 1, 1).toISOString();
 }
 
+// Format Date into standard prefixes
+export const formatDate = (date: Date) => {
+  const f = new Intl.DateTimeFormat("en-us", { dateStyle: "medium" });
+  return f.format(date);
+};
+
+export const formatTime = (time: Date) => {
+  const f = new Intl.DateTimeFormat("en-us", { timeStyle: "medium" });
+  return f.format(time);
+};
+
 export async function BufferExecution({
   caller,
   duration,
