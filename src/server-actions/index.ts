@@ -26,7 +26,7 @@ export async function currentUserRoleTier(user_id: string) {
     const supabase = createClient();
     const { error, data } = await supabase
       .from("users")
-      .select("role, tier")
+      .select("role, tier, commission(*)")
       .eq("id", user_id)
       .single();
 

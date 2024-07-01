@@ -40,11 +40,13 @@ import { useRouter } from "next/navigation";
 
 interface ManageSubAccountFormProps extends HTMLAttributes<HTMLDivElement> {
   credentials: SubAccountsColumnType;
+  parent_comm_rate: Commission;
 }
 
 export function ManageSubAccountForm({
   className,
   credentials,
+  parent_comm_rate,
   ...props
 }: ManageSubAccountFormProps) {
   const [isLoading, setIsLoading] = useState(false);
@@ -156,7 +158,7 @@ export function ManageSubAccountForm({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Tier</FormLabel>
-                    <Select onValueChange={field.onChange}>
+                    <Select onValueChange={field.onChange} disabled>
                       <FormControl>
                         <SelectTrigger
                           disabled={Number(credentials.tier) < 1 && true}
@@ -197,6 +199,11 @@ export function ManageSubAccountForm({
                       placeholder="20%"
                       value={field.value}
                       onChange={(e) => {
+                        if (
+                          Number(e.target.value) > parent_comm_rate.percent ||
+                          Number(e.target.value) < 0
+                        )
+                          return;
                         if (!isNaN(Number(e.target.value))) {
                           field.onChange(Number(e.target.value));
                         }

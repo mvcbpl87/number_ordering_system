@@ -154,6 +154,11 @@ export function CreateSubAccountForm({
                       placeholder="20%"
                       value={field.value}
                       onChange={(e) => {
+                        if (
+                          Number(e.target.value) > commission_value?.percent! ||
+                          Number(e.target.value) < 0
+                        )
+                          return;
                         if (!isNaN(Number(e.target.value))) {
                           field.onChange(Number(e.target.value));
                         }

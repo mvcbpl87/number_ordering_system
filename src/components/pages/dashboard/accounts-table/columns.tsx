@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 import { Trash } from "lucide-react";
-import { DeleteSubAccountAction } from "@/server-actions";
+import { DeleteSubAccountAction, currentAgent, currentUserRoleTier } from "@/server-actions";
 import { useToast } from "@/components/ui/use-toast";
 import { IconEdit } from "@tabler/icons-react";
 import { useModal } from "@/components/provider/modal-provider";
@@ -95,13 +95,15 @@ function ActionDropdown({
       });
     }
   };
-  const handleEdit = () => {
+  const handleEdit = async() => {
+    const user = await currentAgent();
+    const parent_agent = await currentUserRoleTier(user.id);
     modal.setOpen(
       <CustomModal
         title="Manage Sub Account"
         subheading="Manage agent sub account to update subaccounts credentials"
       >
-        <ManageSubAccountForm credentials={data} />
+        <ManageSubAccountForm credentials={data} parent_comm_rate={parent_agent?.commission!}/>
       </CustomModal>
     );
   };

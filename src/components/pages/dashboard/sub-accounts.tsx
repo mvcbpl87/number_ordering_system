@@ -18,9 +18,10 @@ export default async function SubAccountsPage({
   return (
     <div>
       <SubAccountsDataTable
-        commission_value={commission_value}
+        commission_value={credentials?.role === 
+          '1' ? commission_value : credentials?.commission!}
         columns={columns}
-        data={subAccounts}
+        data={subAccounts.filter( account => account.refer_to === user_id)}
         user_id={user_id}
         role={credentials?.role!}
         tier={credentials?.tier!}
