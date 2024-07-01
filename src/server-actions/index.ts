@@ -7,7 +7,7 @@ import type {
 import path from "@/lib/path";
 import { createClient } from "@/supabase/server";
 import { redirect } from "next/navigation";
-import { endOfMonth, startOfMonth } from "@/lib/utils";
+import { endOfMonth, formatDate, startOfMonth } from "@/lib/utils";
 import { createSupabaseAdmin } from "@/supabase/client";
 import { revalidatePath } from "next/cache";
 
@@ -111,7 +111,7 @@ export async function UpsertUserCommission(user_id: string, percent: number) {
       .upsert({ id: user_id, percent })
       .select();
     if (error) throw new Error(error.message);
-    console.log(data);
+    return data;
   } catch (err) {
     console.log(err);
   }
@@ -170,9 +170,8 @@ export async function RetrieveAllSales() {
     const { error, data } = await supabase
       .from("customer_orders")
       .select("*, ticket_numbers(*)")
-      .gte("created_at", startOfMonth(currDate))
-      .lte("created_at", endOfMonth(currDate));
-
+      .gte("created_at", formatDate(startOfMonth(currDate)))
+      .lte("created_at", formatDate(endOfMonth(currDate)));
     if (error) throw new Error();
     return data;
   } catch (err) {

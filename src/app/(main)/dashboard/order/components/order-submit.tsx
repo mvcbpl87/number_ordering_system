@@ -115,7 +115,6 @@ export default function OrderSubmit({
         title: "Successfully order ticker",
         description: `You have successfully order a number ticket`,
       });
-      router.push(path.receipt);
     } catch (error) {
       toast({
         variant: "destructive",
@@ -124,6 +123,7 @@ export default function OrderSubmit({
       });
     } finally {
       setIsLoading(false);
+      router.push(path.receipt);
     }
   };
   return (

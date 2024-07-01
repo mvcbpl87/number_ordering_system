@@ -18,7 +18,7 @@ export default function WinningUI() {
   const { toast } = useToast();
   const fetchWinningOrders = async () => {
     if (!currCategory || !date) return;
-    console.log('click')
+    console.log("click");
 
     try {
       setIsLoading(true);
@@ -26,7 +26,7 @@ export default function WinningUI() {
         currCategory,
         formatDate(date)
       );
-      console.log(winning_orders)
+      console.log(winning_orders);
       if (winning_orders) setData(winning_orders);
     } catch (error) {
       toast({
@@ -52,7 +52,6 @@ export default function WinningUI() {
         <p className="text-muted-foreground">
           Determine who&apos;s the next winner!
         </p>
-        <span>{!date? 'no date' : formatDate(date)}</span>
       </div>
       <div className="flex items-center justify-between ">
         <ToggleGroup type="single">
@@ -78,6 +77,7 @@ export default function WinningUI() {
         data={data}
         drawDate={date}
         setDrawDate={setDate}
+        isLoading = {isLoading}
       />
     </div>
   );

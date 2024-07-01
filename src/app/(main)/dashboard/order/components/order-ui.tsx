@@ -66,7 +66,7 @@ function CategoryPicker({ categories, setCategories }: CategoryPickerProps) {
             className="border"
           >
             <div className="flex items-center gap-2 py-2">
-              {/* <IconImage src={category.src} alt={category.alt} /> */}
+              <IconImage src={category.src} alt={category.alt} />
               {category.name}
             </div>
           </ToggleGroupItem>

@@ -61,7 +61,7 @@ export default function ProfileForm({ credentials }: UserProfileFormProps) {
             <FormItem>
               <FormLabel>Agent Id</FormLabel>
               <FormControl>
-                <Input placeholder="shadcn" {...field} />
+                <Input placeholder="shadcn" {...field} disabled/>
               </FormControl>
               <FormDescription>
                 This is your preset agent id. Only admin can change username

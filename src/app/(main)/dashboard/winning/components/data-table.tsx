@@ -23,12 +23,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { DataTableToolbar } from "./data-table-toolbar";
+import { Loader2 } from "lucide-react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   drawDate: Date | undefined;
   setDrawDate: React.Dispatch<React.SetStateAction<Date | undefined>>;
+  isLoading: boolean;
 }
 
 export function DataTable<TData, TValue>({
@@ -36,6 +38,7 @@ export function DataTable<TData, TValue>({
   data,
   drawDate,
   setDrawDate,
+  isLoading,
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
@@ -99,7 +102,15 @@ export function DataTable<TData, TValue>({
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={6} className="h-24 ">
+                  <div className=" flex items-center justify-center">
+                    <Loader2 className="animate-spin" />
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}

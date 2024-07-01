@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { UserAuthForm } from "@/components/form/user-auth-form";
 import Image from "next/image";
+import { useSearchParams } from "next/navigation";
 
 const _constant = {
   imageUrl:
@@ -9,7 +10,12 @@ const _constant = {
   size: "flex flex-grow h-screen w-full",
 };
 
-export default function LoginPage() {
+export default function LoginPage({
+  searchParams,
+}: {
+  searchParams: { message: string };
+}) {
+  console.log(searchParams);
   return (
     <>
       <div className="container grid h-svh relative flex-col items-center justify-center bg-primary-foreground lg:max-w-none lg:px-0">
@@ -20,8 +26,12 @@ export default function LoginPage() {
           className="absolute w-full h-full "
         />
         <div className="absolute w-full h-full bg-black/30 " />
-        {/* </div> */}
         <div className="z-[100] mx-auto flex w-full flex-col justify-center space-y-2 sm:w-[480px] lg:p-8">
+          {searchParams?.message && (
+            <div className="mt-4 p-4 flex flex-col items-center bg-destructive text-background">
+                {searchParams.message}
+            </div>
+          )}
           <div className="mb-4 flex items-center justify-center text-background">
             <svg
               xmlns="http://www.w3.org/2000/svg"

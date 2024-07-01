@@ -30,6 +30,7 @@ import {
 import { useToast } from "../ui/use-toast";
 import { CreateSubAccountAction } from "@/server-actions";
 import { useRouter } from "next/navigation";
+import { useModal } from "../provider/modal-provider";
 
 interface CreateSubAccountFormProps extends HTMLAttributes<HTMLDivElement> {
   user_id: string;
@@ -46,8 +47,9 @@ export function CreateSubAccountForm({
   commission_value,
   ...props
 }: CreateSubAccountFormProps) {
-  const [isLoading, setIsLoading] = useState(false);
+
   const { toast } = useToast();
+  const {setClose} = useModal();
   const router = useRouter();
   const form = useForm<CreateSubAccountSchemaType>({
     resolver: zodResolver(CreateSubAccountSchema),
@@ -62,9 +64,9 @@ export function CreateSubAccountForm({
       percent: !commission_value ? 0 : commission_value.percent,
     },
   });
+  const isLoading = form.formState.isLoading;
   async function onSubmit(data: CreateSubAccountSchemaType) {
     try {
-      console.log(data);
       await CreateSubAccountAction(data);
       toast({
         variant: "successful",
@@ -78,6 +80,7 @@ export function CreateSubAccountForm({
         description: `${error}`,
       });
     } finally {
+      setClose();
       router.refresh();
     }
   }

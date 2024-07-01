@@ -49,7 +49,6 @@ export function ManageSubAccountForm({
   parent_comm_rate,
   ...props
 }: ManageSubAccountFormProps) {
-  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
   const defaultValues: Partial<ManageSubAccountSchemaType> = {
@@ -64,6 +63,7 @@ export function ManageSubAccountForm({
     mode: "onChange",
     defaultValues,
   });
+  const isLoading = form.formState.isLoading;
   async function onSubmit(data: ManageSubAccountSchemaType) {
     try {
       await UpdateSubAccountAction(data, credentials.id);

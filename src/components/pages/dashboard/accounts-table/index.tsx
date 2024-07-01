@@ -73,10 +73,10 @@ export default function SubAccountsDataTable<TData, TValue>({
     <div className="flex flex-col flex-grow flex-1 ">
       <div className="flex items-center justify-between py-4 ">
         <Input
-          placeholder="Search agent subaccounts..."
-          value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
+          placeholder="Search agent username eg.0123456789 ..."
+          value={(table.getColumn("username")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
-            table.getColumn("email")?.setFilterValue(event.target.value)
+            table.getColumn("username")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />

@@ -1,4 +1,6 @@
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 
 type WinningProps = {
@@ -64,7 +66,7 @@ export const columns: ColumnDef<WinningOrdersWCredentials>[] = [
     header: "order id",
     cell: ({ row }) => (
       <div className="font-medium text-sm text-center">
-        {row.original.customer_orders?.id.substring(0,8)}
+        {row.original.customer_orders?.id.substring(0, 8)}
       </div>
     ),
     enableSorting: false,
@@ -81,7 +83,11 @@ export const columns: ColumnDef<WinningOrdersWCredentials>[] = [
     accessorKey: "customer_orders.phone_number",
     header: "contacts",
     cell: ({ row }) => {
-      return <div className="text-center">{row.original.customer_orders?.phone_number}</div>;
+      return (
+        <div className="text-center">
+          {row.original.customer_orders?.phone_number}
+        </div>
+      );
     },
   },
   {
@@ -89,9 +95,7 @@ export const columns: ColumnDef<WinningOrdersWCredentials>[] = [
     header: "prize type",
     cell: ({ row }) => {
       return (
-        <div className="text-center">
-          {row.original.prizes?.prize_type}
-        </div>
+        <div className="text-center">{row.original.prizes?.prize_type}</div>
       );
     },
   },
@@ -99,12 +103,12 @@ export const columns: ColumnDef<WinningOrdersWCredentials>[] = [
     accessorKey: "prizes.prize_value",
     header: "prize winning",
     cell: ({ row }) => {
-      const {prizes, number} = row.original;
+      const { prizes, number } = row.original;
       return (
         <div className="text-center">
           RM{" "}
-          { prizes?.prize_value &&
-            ( prizes.prize_value * number.length).toFixed(2)}
+          {prizes?.prize_value &&
+            (prizes.prize_value * number.length).toFixed(2)}
         </div>
       );
     },
@@ -115,8 +119,11 @@ export const columns: ColumnDef<WinningOrdersWCredentials>[] = [
     cell: ({ row }) => {
       const { claimed } = row.original;
       return (
-        <div className="text-center">
-          { claimed ? "claimed" : "not claimed"}
+        <div className="flex items-center justify-center">
+          <Badge variant={"secondary"} className={cn('text-muted-foreground font-normal italic', claimed && 'bg-primary text-background ')}>
+            {" "}
+            {claimed ? "claimed" : "not claimed"}
+          </Badge>
         </div>
       );
     },

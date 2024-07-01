@@ -6,10 +6,10 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function startOfMonth(date: Date) {
-  return new Date(date.getFullYear(), date.getMonth(), 2).toISOString();
+  return new Date(date.getFullYear(), date.getMonth(), 1);
 }
 export function endOfMonth(date: Date) {
-  return new Date(date.getFullYear(), date.getMonth() + 1, 1).toISOString();
+  return new Date(date.getFullYear(), date.getMonth() + 1, 1);
 }
 
 // Format Date into standard prefixes

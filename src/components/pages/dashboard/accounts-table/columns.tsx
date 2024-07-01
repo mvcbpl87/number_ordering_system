@@ -32,7 +32,7 @@ import { Badge } from "@/components/ui/badge";
 
 export const columns: ColumnDef<SubAccountsColumnType, any>[] = [
   {
-    accessorKey: "email",
+    accessorKey: "username",
     header: "users",
     cell: ({ row }) => {
       const { username, email } = row.original;
