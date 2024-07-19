@@ -15,13 +15,11 @@ import { GroupingCustomerOrder, TotalSales } from "./hooks";
 import { IconChevronLeft } from "@tabler/icons-react";
 
 type Props = {
-  draw_date: string;
   all_sales: AllSales[];
   category: string;
 };
 export default function ViewCustomerOrder({
   category,
-  draw_date,
   all_sales,
 }: Props) {
   const [currentReceipt, setCurrentReceipt] = useState<string | null>(null);

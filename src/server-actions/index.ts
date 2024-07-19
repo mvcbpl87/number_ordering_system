@@ -37,11 +37,12 @@ export async function currentUserRoleTier(user_id: string) {
     return null;
   }
 }
+
 export async function RetrieveAgentCredentials(user_id: string) {
   const supabase = createClient();
   const { data } = await supabase
     .from("users")
-    .select("*")
+    .select("*, commission(*), credits(*)")
     .eq("id", user_id)
     .single();
 
@@ -177,6 +178,23 @@ export async function RetrieveAllSales() {
   } catch (err) {
     console.log(err);
     return null;
+  }
+}
+
+/* --- Read Target Sales for selected certain range draw_date --- */
+//prettier-ignore
+export async function RetrieveSalesOnRange(value: string) {
+  try {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from("customer_orders")
+      .select(`*, ticket_numbers!inner(*)`)
+      .filter("ticket_numbers.draw_date", "in", value);
+
+    if (error) throw new Error(error.message);
+    return data;
+  } catch (err) {
+    console.log(err);
   }
 }
 

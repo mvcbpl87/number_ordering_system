@@ -1,39 +1,35 @@
-import ReportUI from "@/app/(main)/dashboard/report/components/report-ui";
+import {
+  currentAgent,
+  RetrieveAgentCredentials,
+  RetrieveSalesOnRange,
+} from "@/server-actions";
+import ReportUI from "./components/report-ui";
 import { DatePreset2 } from "@/lib/game-utils/draw-date-generator/preset";
-import { RetrieveAllSales, currentAgent } from "@/server-actions";
-import { FilterDrawDateAndUserId } from "./components/hooks";
 
-export const revalidate = 10;
+function DateToStringConverter(_string_array: string[]): string {
+  const temp = Array.from(
+    { length: _string_array.length },
+    (_, index) => `"${_string_array[index]}"`
+  ).join(",");
+  return `(${temp})`;
+}
+
 export default async function ReportPage() {
-  let allSales: AllSales[] = [];
+  const draw_dates = new DatePreset2().GET_DRAW_DATE();
+  const dateToString = DateToStringConverter(draw_dates);
   const user = await currentAgent();
-  const allDrawDates = new DatePreset2().GET_DRAW_DATE();
-  /**
-   * var: allSales fetch from server
-   * @returns AllSales[] within a month time
-   *
-   * !Important for report
-   * need to limit sales by few conditions
-   * - All Sales must within the preset time period
-   * and current userid only
-   */
-  const getSales = await RetrieveAllSales();
-  allSales = !getSales ? [] : getSales;
+  const userCredentials = await RetrieveAgentCredentials(user.id);
+  const sales: AllSales[] | undefined = await RetrieveSalesOnRange(
+    dateToString
+  );
 
-  allSales = FilterDrawDateAndUserId(allSales, user.id);
-  
-  const total_sales = allSales.reduce((accumulator, current) => {
-    const { ticket_numbers } = current;
-    const { number, category, amount } = ticket_numbers!;
-    const pivot = number.length * amount * category.length;
-    return (accumulator += pivot);
-  }, 0);
+  const { credits } = userCredentials;
   return (
-    <div className="flex flex-col flex-grow ">
+    <div className="flex flex-col flex-1 flex-grow gap-4 bg-muted/20 p-4 md:gap-8 md:p-10">
       <ReportUI
-        user_id={user.id}
-        total_sales={total_sales!}
-        all_sales={allSales}
+        draw_dates={draw_dates}
+        sales={!sales ? [] : sales}
+        credit_value={!credits ? 0 : credits.credit_value}
       />
     </div>
   );

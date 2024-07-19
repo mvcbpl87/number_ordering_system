@@ -41,7 +41,6 @@ export default function ReportTable({ all_sales, category }: Props) {
       <CustomModal title="Order details" subheading="All order made by agent">
         <ViewCustomerOrder
           all_sales={FilterDrawDate(sales, draw_date)}
-          draw_date={draw_date}
           category={category}
         />
       </CustomModal>
