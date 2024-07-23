@@ -9,6 +9,7 @@ const path = {
     receipt: '/dashboard/order/receipt',
     login: '/login',
     report: '/dashboard/report',
+    sales: '/dashboard/sales',
     winning:'/dashboard/winning',
     dashboard: '/dashboard',
     settings: '/dashboard/settings'

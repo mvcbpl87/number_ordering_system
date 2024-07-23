@@ -23,9 +23,16 @@ import {
   IconUsers,
   IconTrophy,
   IconGoGame,
+  IconEyeDollar,
 } from "@tabler/icons-react";
 
-type SideLinkType = "Game" | "Dashboard" | "Report" | "Winning" | "Settings";
+type SideLinkType =
+  | "Game"
+  | "Dashboard"
+  | "Report"
+  | "Sales"
+  | "Winning"
+  | "Settings";
 
 type SideLinkElement = {
   id: string;
@@ -71,6 +78,14 @@ const Game = {
   href: path.game,
   icon: IconGoGame,
 };
+
+const Sales = {
+  id: "side-sales",
+  type: "Sales",
+  label: "Sales",
+  href: path.sales,
+  icon: IconEyeDollar,
+};
 const Settings = {
   id: "side-settings",
   type: "Settings",
@@ -83,6 +98,7 @@ export const SideLinks: SideLinksType = {
   Game,
   Dashboard,
   Report,
+  Sales,
   Winning,
   Settings,
 };
@@ -91,6 +107,7 @@ export const SideLinksList: SideLinkInstance[] = [
   "Game",
   "Dashboard",
   "Report",
+  "Sales",
   "Winning",
   "Settings",
 ];
