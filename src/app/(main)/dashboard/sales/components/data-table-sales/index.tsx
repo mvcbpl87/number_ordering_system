@@ -12,10 +12,10 @@ import { columns } from "./columns";
 
 export default function SalesDataTable({
   data,
-  selectCell,
+  updateSales,
 }: {
   data: AllSales[];
-  selectCell?: (target_draw_date: string) => void;
+  updateSales?: (_target: AllSales[]) => void;
 }) {
   return (
     <Card className="rounded">
@@ -23,8 +23,8 @@ export default function SalesDataTable({
         <CardTitle>Recent sales</CardTitle>
         <CardDescription>Recent sales within these draw dates.</CardDescription>
       </CardHeader>
-      <CardContent className="py-4 h-[500px] relative">
-        <SalesTable data={data} columns={columns}/>
+      <CardContent className="py-4  relative">
+        <SalesTable data={data} columns={columns} updateSales={updateSales} />
       </CardContent>
     </Card>
   );

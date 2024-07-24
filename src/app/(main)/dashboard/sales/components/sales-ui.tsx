@@ -10,6 +10,7 @@ import {
 import { Progress } from "@/components/ui/progress";
 import SalesDataTable from "./data-table-sales";
 import FetchSalesHooks from "./fetch-sales-hooks";
+import { cn } from "@/lib/utils";
 type SaleStatsValueType = {
   value: number;
   label: string;
@@ -62,7 +63,7 @@ function CreditBalance({
         <IconCoinBitcoinFilled className="h-4 w-4" />
         <span className="text-xs font-medium">Balance</span>
       </div>
-      <span className="font-medium">
+      <span className={cn("font-medium", credit_value < 0 && 'text-destructive')}>
         {_locale}&nbsp;{credit_value.toFixed(2)}
       </span>
     </div>
@@ -86,16 +87,30 @@ function ControlsSelection({ date, setDate }: ControlsSelectionProps) {
     </div>
   );
 }
-export default function SalesUI() {
-  const { date, setDate, sales, total_paid, total_sales, creditBalance } = FetchSalesHooks();
+
+interface SalesUIProps {
+  user_id: string;
+  credit_value: number;
+}
+
+export default function SalesUI(props: SalesUIProps) {
+  const {
+    date,
+    setDate,
+    sales,
+    total_paid,
+    total_sales,
+    creditBalance,
+    updateSales,
+  } = FetchSalesHooks(props);
   return (
     <div className="grid gap-[1rem]">
       <ControlsSelection date={date} setDate={setDate} />
       <div className="flex gap-2 items-center">
-        <SaleStats total_paid={total_paid} total_sales={total_sales}/>
+        <SaleStats total_paid={total_paid} total_sales={total_sales} />
         <CreditBalance credit_value={creditBalance} />
       </div>
-      <SalesDataTable data={sales} />
+      <SalesDataTable data={sales} updateSales={updateSales} />
     </div>
   );
 }

@@ -4,18 +4,19 @@ import { Button } from "@/components/ui/button";
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
-  updateCacheSales?: (_target: AllSales[]) => void;
+  updateSales?: (_target: AllSales[]) => void;
 }
 
 export function DataTableToolbar<TData>({
   table,
-  updateCacheSales,
+  updateSales,
 }: DataTableToolbarProps<TData>) {
-  const handlePayout = () => {
+  const handlePayouts = () => {
     const _temp = table
       .getSelectedRowModel()
       .rows.map((item) => item.original) as AllSales[];
-    if(updateCacheSales) updateCacheSales(_temp);
+    if (updateSales) updateSales(_temp);
+    // if(updateCacheSales) updateCacheSales(_temp);
     table.toggleAllPageRowsSelected(false);
   };
   return (
@@ -30,7 +31,7 @@ export function DataTableToolbar<TData>({
           className="h-9 w-[150px] lg:w-[250px]"
         />
       </div>
-      <Button onClick={handlePayout}>Pay tickets</Button>
+      <Button onClick={handlePayouts}>Pay tickets</Button>
     </div>
   );
 }

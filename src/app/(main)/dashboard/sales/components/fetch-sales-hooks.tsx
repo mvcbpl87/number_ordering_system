@@ -1,6 +1,10 @@
 import { useToast } from "@/components/ui/use-toast";
 import { formatDate } from "@/lib/utils";
-import { RetrieveSalesOnRange } from "@/server-actions";
+import {
+  RetrieveSalesOnRange,
+  UpsertCustomerOrder,
+  UpsertUserCredits,
+} from "@/server-actions";
 import { addDays } from "date-fns";
 import { useState, useEffect, useMemo } from "react";
 import { DateRange } from "react-day-picker";
@@ -38,7 +42,14 @@ const FilterDateConstructs = (
 };
 /** --- End of Getting list of draw dates ---- */
 
-export default function FetchSalesHooks() {
+interface FetchSalesHooksProps {
+  user_id: string;
+  credit_value: number;
+}
+export default function FetchSalesHooks({
+  user_id,
+  credit_value,
+}: FetchSalesHooksProps) {
   const today = new Date();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -46,9 +57,50 @@ export default function FetchSalesHooks() {
     from: today,
     to: addDays(today, 7),
   });
-  const [creditBalance, setCreditBalance] = useState<number>(500);
+  const [creditBalance, setCreditBalance] = useState<number>(credit_value);
   const [sales, setSales] = useState<AllSales[]>([]);
-
+  const ReduceToCustomerOrder = (_item: AllSales[]): CustomerOrders[] => {
+    return _item.map((ele) => {
+      const { ticket_numbers, ...current } = ele;
+      return current;
+    });
+  };
+  const updateSales = async (_target: AllSales[]) => {
+    try {
+      /** ---- Critical Region ----- */
+      let existingData = [...sales];
+      let _ticketToPay: AllSales[] = [];
+      _target.forEach((item) => {
+        let isExist = existingData.find((ele) => ele.id === item.id);
+        if (isExist) {
+          const currentIndex = existingData.findIndex(
+            (ele) => ele.id === item.id
+          );
+          existingData[currentIndex] = {
+            ...isExist,
+            ["bought"]: !item.bought,
+          };
+          _ticketToPay.push(existingData[currentIndex]);
+        }
+      });
+      const amount_paid = creditBalance - TotalSales(_ticketToPay);
+      const credits = await UpsertUserCredits(user_id, amount_paid);
+      const _temp = await UpsertCustomerOrder(
+        ReduceToCustomerOrder(existingData)
+      );
+      if (credits) {
+        setCreditBalance(credits.credit_value);
+      }
+      if (_temp) setSales(existingData);
+      /** ---- End Critical Region ----- */
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong.",
+        description: `${error}`,
+      });
+    }
+  };
   useEffect(() => {
     const fetchRequest = async () => {
       try {
@@ -72,19 +124,25 @@ export default function FetchSalesHooks() {
     };
     if (date) fetchRequest();
   }, [date]);
+
   const { total_paid, total_sales } = useMemo(() => {
     const hasPaid = sales.filter((item) => item.bought === true);
     const total_paid = TotalSales(hasPaid);
     const total_sales = TotalSales(sales);
     return { total_paid, total_sales };
-  }, [date, sales]);
+  }, [sales]);
+  // const creditBalance = useMemo(()=>{
+
+  // }, [sales ])
   return {
+    isLoading,
     date,
     setDate,
     sales,
     setSales,
     total_paid,
     total_sales,
-    creditBalance
+    creditBalance,
+    updateSales,
   };
 }

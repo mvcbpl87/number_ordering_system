@@ -252,6 +252,34 @@ export async function UpdateSubAccountAction(
   }
 }
 
+export async function UpsertCustomerOrder(values: CustomerOrders[]) {
+  try {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from("customer_orders")
+      .upsert(values)
+      .select('*, ticket_numbers(*)');
+    if (error) throw new Error(error.message);
+    return data;
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+export async function UpsertUserCredits(user_id: string, credit_value: number) {
+  try {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from("credits")
+      .upsert({ id: user_id, credit_value })
+      .select().single();
+    if (error) throw new Error(error.message);
+    return data;
+  } catch (err) {
+    console.log(err);
+  }
+}
+
 export async function DeleteSubAccountAction(user_id: string) {
   try {
     const supabase = createSupabaseAdmin();

@@ -30,13 +30,13 @@ import { DataTableToolbar } from "./data-table-toolbar";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  updateCacheSales?: (_target: AllSales[]) => void;
+  updateSales?: (_target: AllSales[]) => void;
 }
 
 export function SalesTable<TData, TValue>({
   columns,
   data,
-  updateCacheSales,
+  updateSales,
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
@@ -56,7 +56,6 @@ export function SalesTable<TData, TValue>({
     onColumnVisibilityChange: setColumnVisibility,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
@@ -70,10 +69,10 @@ export function SalesTable<TData, TValue>({
 
   return (
     <div className="space-y-4">
-      <DataTableToolbar table={table} />
-      <div className="rounded-md border">
+      <DataTableToolbar table={table} updateSales={updateSales} />
+      <div className="rounded-md border overflow-auto max-h-[420px] md:max-h-[540px] lg:max-h-[640px] ">
         <Table>
-          <TableHeader>
+          <TableHeader className=" sticky top-0">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
