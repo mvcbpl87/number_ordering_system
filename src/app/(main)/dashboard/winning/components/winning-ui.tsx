@@ -1,47 +1,53 @@
 "use client";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { CategoryList } from "@/lib/types";
-import { cn, formatDate } from "@/lib/utils";
-import { IconTrophy } from "@tabler/icons-react";
-import { useEffect, useState } from "react";
+import { IconCurrencyDollar, IconTrophy } from "@tabler/icons-react";
 import { DataTable } from "./data-table";
-import { columns } from "./columns";
 import { IconImage } from "@/components/shared/IconImgTemplate";
-import { useToast } from "@/components/ui/use-toast";
-import { RetrieveWinningOrders } from "@/server-actions";
+import UseGetWinningHooks from "../_hooks/useGetWinningHooks";
+import { GetColumnDef } from "./columns";
+import { Progress } from "@/components/ui/progress";
 
-export default function WinningUI() {
-  const [data, setData] = useState<WinningOrdersWCredentials[]>([]);
-  const [currCategory, setCurrCategory] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [date, setDate] = useState<Date>();
-  const { toast } = useToast();
-  const fetchWinningOrders = async () => {
-    if (!currCategory || !date) return;
-    console.log("click");
+function SaleStats({
+  total_sales = 0,
+  total_claimed = 0,
+  locales = "RM",
+}: {
+  total_sales?: number;
+  total_claimed?: number;
+  locales?: string;
+}) {
+  return (
+    <div className="grid w-[280px] shadow py-3 px-4 gap-2 rounded bg-card border-l-4 border-primary">
+      <div className="flex items-center justify-between gap-2">
+        <IconCurrencyDollar className="h-4 w-4" />
+        <div className="flex items-center gap-1">
+          <span className="text-xs font-medium">Total claimed :</span>
+          <span className="text-xs font-medium">
+            {locales}
+            {total_claimed.toFixed(2)}&nbsp;/
+          </span>
+          <span className="text-xs font-medium">{total_sales.toFixed(2)}</span>
+        </div>
+      </div>
 
-    try {
-      setIsLoading(true);
-      const winning_orders = await RetrieveWinningOrders(
-        currCategory,
-        formatDate(date)
-      );
-      console.log(winning_orders);
-      if (winning_orders) setData(winning_orders);
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Uh oh! Something went wrong.",
-        description: `${error}`,
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      <Progress className="h-1" value={(total_claimed / total_sales) * 100} />
+    </div>
+  );
+}
+export default function WinningUI({ user_id }: { user_id: string }) {
+  const {
+    isLoading,
+    data,
+    category,
+    setCategory,
+    date,
+    setDate,
+    handleClaimed,
+    statsValue
+  } = UseGetWinningHooks({ user_id });
 
-  useEffect(() => {
-    fetchWinningOrders();
-  }, [currCategory, date]);
+  const { columns } = GetColumnDef({ handleClaimed });
   return (
     <div className=" p-4 flex flex-col flex-grow space-y-[1rem]">
       <div>
@@ -54,30 +60,36 @@ export default function WinningUI() {
         </p>
       </div>
       <div className="flex items-center justify-between ">
-        <ToggleGroup type="single">
-          {CategoryList.map((category) => (
+        <ToggleGroup type="single" defaultValue={category}>
+          <ToggleGroupItem
+            value={"all"}
+            onClick={() => setCategory("all")}
+            variant={"outline"}
+            className="flex items-center gap-1 data-[state=on]:bg-primary data-[state=on]:text-background"
+          >
+            All Categories
+          </ToggleGroupItem>
+          {CategoryList.map((cate) => (
             <ToggleGroupItem
-              value={category.name}
-              key={category.name}
-              onClick={() => setCurrCategory(category.name)}
+              value={cate.name}
+              key={cate.name}
+              onClick={() => setCategory(cate.name)}
               variant={"outline"}
-              className={cn(
-                "flex items-center gap-1 ",
-                currCategory === category.name && "bg-blue-800"
-              )}
+              className="flex items-center gap-1 data-[state=on]:bg-primary data-[state=on]:text-background"
             >
-              <IconImage src={category.src} alt={category.alt} />
-              {category.name}
+              <IconImage src={cate.src} alt={cate.alt} />
+              {cate.name}
             </ToggleGroupItem>
           ))}
         </ToggleGroup>
       </div>
+      <SaleStats total_claimed={statsValue.totalClaimed} total_sales={statsValue.totalSales} />
       <DataTable
         columns={columns}
         data={data}
         drawDate={date}
         setDrawDate={setDate}
-        isLoading = {isLoading}
+        isLoading={isLoading}
       />
     </div>
   );

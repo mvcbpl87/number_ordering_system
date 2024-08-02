@@ -24,16 +24,12 @@ declare global {
     email: Users["email"];
     role: Users["role"];
   }[];
-  type WinningOrdersWCredentials = {
-    number: WinningOrders["number"];
-    draw_date: WinningOrders["draw_date"];
-    gametype: WinningOrders["gametype"];
-    category: WinningOrders["category"];
-    claimed: WinningOrders['claimed'];
+  type WinningOrdersWCredentials = WinningOrders & {
     customer_orders: {
       id: CustomerOrders["id"];
       phone_number: CustomerOrders["phone_number"];
       users: {
+        id: Users["id"];
         username: Users["username"];
         email: Users["email"];
       } | null;

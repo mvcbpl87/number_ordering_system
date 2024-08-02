@@ -28,7 +28,6 @@ import { getUniquePermutation } from "@/lib/game-utils/permutation";
 import OrderSubmit from "./order-submit";
 import UseOrderHooks from "./useOrderHooks";
 import LuckyPick from "@/lib/game-utils/number-generator";
-import { Badge } from "@/components/ui/badge";
 
 interface OrderTicketProps {
   categories: string[];

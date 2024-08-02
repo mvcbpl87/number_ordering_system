@@ -216,7 +216,7 @@ export const RetrieveAllSubAccounts = async (user_id: string) => {
 
 /* --- Retrieve Winning Orders ---*/
 export async function RetrieveWinningOrders(
-  category: string,
+  user_id: string,
   draw_date: string
 ) {
   try {
@@ -224,10 +224,11 @@ export async function RetrieveWinningOrders(
     const { data, error } = await supabase
       .from("winning_orders")
       .select(
-        "number, draw_date, gametype, category, claimed, customer_orders(id, phone_number, users(username, email)), prizes(prize_type, prize_value) "
+        
+        "*, customer_orders!inner(id, phone_number, users(id, username, email)), prizes(prize_type, prize_value) "
       )
       .eq("draw_date", draw_date)
-      .eq("category", category);
+      .eq("customer_orders.user_id", user_id);
     if (error) throw new Error(error.message);
     return data;
   } catch (err) {
@@ -258,7 +259,7 @@ export async function UpsertCustomerOrder(values: CustomerOrders[]) {
     const { data, error } = await supabase
       .from("customer_orders")
       .upsert(values)
-      .select('*, ticket_numbers(*)');
+      .select("*, ticket_numbers(*)");
     if (error) throw new Error(error.message);
     return data;
   } catch (err) {
@@ -272,7 +273,35 @@ export async function UpsertUserCredits(user_id: string, credit_value: number) {
     const { data, error } = await supabase
       .from("credits")
       .upsert({ id: user_id, credit_value })
-      .select().single();
+      .select()
+      .single();
+    if (error) throw new Error(error.message);
+    return data;
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+export async function UpsertWinningPayout(values: WinningOrdersWCredentials) {
+  let temp: WinningOrders = {
+    customer_id: values.customer_id,
+    prize_id: values.prize_id,
+    number: values.number,
+    draw_date: values.draw_date,
+    gametype: values.gametype,
+    category: values.category,
+    claimed: values.claimed,
+    deposited: values.deposited,
+  };
+  try {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from("winning_orders")
+      .upsert(temp)
+      .select(
+        "*, customer_orders(id, phone_number, users(id, username, email)), prizes(prize_type, prize_value) "
+      )
+      .single();
     if (error) throw new Error(error.message);
     return data;
   } catch (err) {

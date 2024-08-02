@@ -109,7 +109,7 @@ export type TicketOrdersDispatch = {
 export type CategoryListType = {
   src: string;
   alt: string;
-  name: shopType;
+  name: shopType | string;
   tag: string;
 };
 export const CategoryList: CategoryListType[] = [
